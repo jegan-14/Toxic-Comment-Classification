@@ -6,6 +6,7 @@ import tensorflow as tf
 import pickle
 import numpy as np
 from tensorflow.keras.layers import TextVectorization
+from tensorflow.keras.preprocessing.sequence import pad_sequences
 import pandas as pd
 
 
@@ -22,6 +23,12 @@ vectorizer = TextVectorization(
     max_tokens=MAX_FEATURES, output_sequence_length=1800, output_mode="int"
 )
 vectorizer.adapt(X.values)
+
+word_classifier_model = tf.keras.models.load_model("toxic_word_classifier.h5")
+
+# Load the tokenizer
+with open("tokenizer.pkl", "rb") as f:
+    tokenizer = pickle.load(f)
 
 # Initialize the Flask app
 app = Flask(__name__)
@@ -45,14 +52,31 @@ def classify():
     all_less_than_05 = np.all(prediction < 0.3)
     print(prediction)
     # Check if all probabilities are below 0.5
-    
+
     if all_less_than_05:
         return jsonify({"text": text, "classification": "safe comment"})
 
-    # Otherwise, return the class with the highest probability
-    predicted_class = np.argmax(prediction, axis=1)[0]
+    # Get the predicted result for each word in toxic comment
+    words = text.split()
+    toxic_words = [classify_word(word) for word in words]
 
-    return jsonify({"text": text, "predicted_class": int(predicted_class)})
+    modified_text = " ".join(
+        "***" if toxic_words[i] == 1 else words[i] for i in range(len(toxic_words))
+    )
+
+    return jsonify({"modified_text": modified_text, "classification": "toxic"})
+
+
+def classify_word(word):
+    result = predict_toxic_word(word)
+    return result
+
+
+def predict_toxic_word(word):
+    seq = tokenizer.texts_to_sequences([word])
+    seq = pad_sequences(seq, maxlen=1)
+    pred = word_classifier_model.predict(seq)[0][0]
+    return 1 if pred > 0.7 else 0
 
 
 # Run the app
