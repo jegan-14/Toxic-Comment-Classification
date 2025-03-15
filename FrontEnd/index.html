@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toxic Comment Classifier</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Toxic Comment Classifier</h1>
+        <hr class="divider">
+        <input type="text" id="commentInput" placeholder="Enter your comment here...">
+        <button id="submitBtn">Submit</button>
+
+        <div class="result-container">
+            <span id="toxicLabel">Toxic</span>
+            <div class="toggle">
+                <div class="circle"></div>
+            </div>
+            <span id="notToxicLabel">Not Toxic</span>
+        </div>
+
+        <p id="outputText"></p>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
