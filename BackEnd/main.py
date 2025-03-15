@@ -62,11 +62,17 @@ def classify():
     words = text.split()
     toxic_words = [classify_word(word) for word in words]
 
-    modified_text = " ".join(
+    filtered_text = " ".join(
         "***" if toxic_words[i] == 1 else words[i] for i in range(len(toxic_words))
     )
 
-    return jsonify({"modified_text": modified_text, "classification": "toxic"})
+    return jsonify(
+        {
+            "original_text": text,
+            "filtered_text": filtered_text,
+            "classification": "toxic",
+        }
+    )
 
 
 def classify_word(word):

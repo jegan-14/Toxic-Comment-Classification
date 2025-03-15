@@ -1,14 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
-    let btn = document.getElementById("submitBtn");
-    let outputText = document.getElementById("outputText");
-
-    if (!btn || !outputText) {
-        console.error("Button or outputText element not found!");
-        return;
-    }
-
-    btn.addEventListener("click", async function () {
-
+    let toggle = document.querySelector(".toggle");
+    document.getElementById("submitBtn").addEventListener("click", async function () {
         let inputText = document.getElementById("commentInput").value.trim();
         if (!inputText) {
             alert("Please enter a comment.");
@@ -23,17 +15,35 @@ document.addEventListener("DOMContentLoaded", function () {
             });
 
             let data = await response.json();
+            
+            let outputContainer = document.getElementById("outputContainer");
+            outputContainer.innerHTML = ""; // Clear previous results
 
-            if (data.classification === "toxic") {
-                document.querySelector(".toggle").classList.add("active");
-                outputText.innerText = "⚠️ This comment contains toxic content!";
+
+            if (data.classification === "safe comment") {
+                // Show safe message
+                toggle.classList.remove("active");
+                let safeText = document.createElement("p");
+                safeText.innerText = `✅ Safe Comment`;
+                safeText.style.color = "green";
+                outputContainer.appendChild(safeText);
             } else {
-                document.querySelector(".toggle").classList.remove("active");
-                outputText.innerText = "✅ This comment is safe!";
+                // Show toxic message
+                toggle.classList.add("active");
+                let toxicText = document.createElement("p");
+                toxicText.innerText = `⚠️ Toxic Comment`;
+                toxicText.style.color = "red";
+                outputContainer.appendChild(toxicText);
+
+                // Show filtered text
+                let filteredText = document.createElement("p");
+                filteredText.innerText = `🚫 Filtered: ${data.filtered_text}`;
+                filteredText.style.color = "blue";
+                outputContainer.appendChild(filteredText);
             }
         } catch (error) {
             console.error("Error:", error);
-            outputText.innerText = "Error processing text!";
+            document.getElementById("outputContainer").innerText = "Error processing text!";
         }
     });
 });
